@@ -1,20 +1,18 @@
-import asyncio
-import logging
+from faststream import FastStream
 
-from core.nats_client import app, broker, stream
+from core.nats_client import broker, stream
 from core.router import dispatch
-from sinks import REGISTRY
-
-logging.basicConfig(level=logging.INFO)
-
-for channel in REGISTRY.keys():
-
-    @broker.subscriber(channel, stream=stream)
-    async def _(event: dict):
-        await dispatch(event)
 
 
-if __name__ == "__main__":
-    import uvicorn
+@broker.subscriber(
+    "logs.events",
+    stream=stream,
+    durable="log-worker",
+    queue="log-workers",  # добавили для масштабирования
+)
+async def handle_log(event: dict):
+    print("131")
+    await dispatch(event)
 
-    uvicorn.run(app, host="0.0.0.0", port=8010)
+
+app = FastStream(broker)  # <- ASGI-приложение
