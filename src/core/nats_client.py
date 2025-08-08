@@ -1,4 +1,3 @@
-# src/core/nats_client.py  – в воркере FastStream
 import os
 
 from faststream.nats import JStream, NatsBroker

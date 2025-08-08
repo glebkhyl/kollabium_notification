@@ -6,11 +6,11 @@ import yaml
 from jinja2 import BaseLoader, Environment, select_autoescape
 
 _ROOT = Path(__file__).resolve().parents[1]
-_TPL_PATH = _ROOT / "templates" / "telegram.yaml"
+_TPL_PATH = _ROOT / "texts" / "airdrop_logs.yaml"
 
 _env = Environment(
     loader=BaseLoader(),
-    autoescape=select_autoescape(disabled=True),
+    autoescape=False,
     trim_blocks=True,
     lstrip_blocks=True,
 )

@@ -1,26 +1,48 @@
-import html
-import os
-
 from aiogram import Bot
-from aiogram.client.bot import DefaultBotProperties
+from aiogram.client.default import DefaultBotProperties
 from icecream import ic
+from loguru import logger
 
-from core.config import AIR_DROP_LOG_BOT_TOKEN, AIR_DROP_LOG_CHAT
+from core.profiles import PROFILES
 from sinks.base import Sink, register
 
-ic(AIR_DROP_LOG_BOT_TOKEN)
+# from core.db import get_chat_by_user_id
 
 
 @register
 class TelegramSink(Sink):
-    channel = "logs.telegram"
-
-    def __init__(self):
-        self.bot = Bot(
-            AIR_DROP_LOG_BOT_TOKEN,
-            default=DefaultBotProperties(parse_mode="HTML"),
-        )
-        self.chat = int(AIR_DROP_LOG_CHAT)
+    channel = "logs.telegram"  # ← остаётся прежним
 
     async def send(self, payload: dict):
-        await self.bot.send_message(self.chat, payload["text"])
+
+        text = payload["text"]
+        ic(payload)
+        if "profile" in payload:
+            ic()
+            prof = PROFILES.get(payload["profile"])
+            if not prof:
+                logger.warning("Unknown TG profile: {}", payload["profile"])
+                return
+            ic(prof.token)
+            bot = Bot(
+                str(prof.token),
+                default=DefaultBotProperties(parse_mode="HTML"),
+            )
+
+            await bot.send_message(prof.chat, text)
+            return
+
+        # if "user_id" in payload:
+        #     chat_id = await get_chat_by_user_id(int(payload["user_id"]))
+        #     if not chat_id:
+        #         logger.warning("User {} has no chat-id", payload["user_id"])
+        #         return
+        #
+        #     bot = Bot(
+        #         PROFILES["air_drop"].token,     # ← общий «пользовательский» бот
+        #         default=DefaultBotProperties(parse_mode="HTML"),
+        #     )
+        #     await bot.send_message(chat_id, text)
+        #     return
+
+        logger.warning("Bad telegram payload: {}", payload)
