@@ -38,6 +38,14 @@ class CRUDRepository:
             return user_query.scalars().first()
 
     @classmethod
+    async def get_user_telegram_id(cls, user_id):
+        async with new_session() as session:
+            user_query = await session.execute(
+                select(User.telegram_id).where(User.id == user_id)
+            )
+            return user_query.scalars().first()
+
+    @classmethod
     async def get_alert_text(cls, alert_type, lang="ru"):
         async with new_session() as session:
             text_query = await session.execute(

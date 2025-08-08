@@ -28,18 +28,14 @@ class TelegramSink(Sink):
 
             await bot.send_message(prof.chat, text)
             return
-
-        if "user_id" in payload:
-            chat_id = await get_chat_by_user_id(int(payload["user_id"]))
-            if not chat_id:
+        if "chat_id" in payload:
+            if not payload["chat_id"]:
                 logger.warning("User {} has no chat-id", payload["user_id"])
                 return
-
             bot = Bot(
-                PROFILES["air_drop"].token,  # ← общий «пользовательский» бот
+                PROFILES["users"].token,
                 default=DefaultBotProperties(parse_mode="HTML"),
             )
-            await bot.send_message(chat_id, text)
+            await bot.send_message(payload["chat_id"], text)
             return
-
         logger.warning("Bad telegram payload: {}", payload)
