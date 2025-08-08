@@ -10,15 +10,15 @@ router = NatsRouter()
 
 HANDLERS = {
     "telegram_air_drop_start": airdrop.telegram_air_drop_start,
-    "telegram_air_drop_12_left": airdrop.telegram_air_drop_all_done,
+    "telegram_air_drop_12_left": airdrop.telegram_air_drop_all_done,  # INFO: need
     "telegram_air_drop_all_done": airdrop.telegram_air_drop_all_done,
-    "telegram_air_drop_can_be_inviter": airdrop.telegram_air_drop_all_done,
+    "telegram_air_drop_can_be_inviter": airdrop.telegram_air_drop_all_done,  # INFO: need
     "telegram_air_drop_changed_to_inviter": airdrop.telegram_air_drop_changed_to_inviter,
     "telegram_air_drop_invitee_start_program": airdrop.telegram_air_drop_invitee_start_program,
-    "telegram_air_drop_invitee_lose12_hours": airdrop.telegram_air_drop_all_done,
+    "telegram_air_drop_invitee_lose12_hours": airdrop.telegram_air_drop_all_done,  # INFO: need
     "telegram_air_drop_invitee_complite_program": airdrop.telegram_air_drop_invitee_complite_program,
     "telegram_air_drop_invitee_need_buy_plan": airdrop.telegram_air_drop_invitee_need_buy_plan,
-    "telegram_air_drop_invitee_to_be_inviter": airdrop.telegram_air_drop_all_done,
+    "telegram_air_drop_invitee_to_be_inviter": airdrop.telegram_air_drop_all_done,  # INFO: need
 }
 
 
