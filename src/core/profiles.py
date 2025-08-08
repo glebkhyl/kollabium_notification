@@ -16,7 +16,7 @@ PROFILES: dict[str, TgProfile] = {
     "airdrop_logs": TgProfile(
         token=os.getenv(
             "AIR_DROP_BOT_TOKEN",
-            "6094800971:AAF1_u23PEoSurmX-MnKi3mwkGvunY2ZhZ4",
+            "6675627103:AAFa5LR3RydEV0Az5tFvwdPbnzf2nE5FPl4",
         ),
         chat=int(os.getenv("AIR_DROP_CHAT_ID", "-1002678250936")),
     ),
@@ -34,6 +34,6 @@ PROFILES: dict[str, TgProfile] = {
     ),
     "users": TgProfile(
         token=os.getenv("USERS_BOT_TOKEN"),
-        chat=int(os.getenv("_CHAT_ID", "-1001112223334")),
+        chat=None,
     ),
 }

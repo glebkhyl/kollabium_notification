@@ -16,14 +16,11 @@ class TelegramSink(Sink):
     async def send(self, payload: dict):
 
         text = payload["text"]
-        ic(payload)
         if "profile" in payload:
-            ic()
             prof = PROFILES.get(payload["profile"])
             if not prof:
                 logger.warning("Unknown TG profile: {}", payload["profile"])
                 return
-            ic(prof.token)
             bot = Bot(
                 str(prof.token),
                 default=DefaultBotProperties(parse_mode="HTML"),
@@ -32,17 +29,17 @@ class TelegramSink(Sink):
             await bot.send_message(prof.chat, text)
             return
 
-        # if "user_id" in payload:
-        #     chat_id = await get_chat_by_user_id(int(payload["user_id"]))
-        #     if not chat_id:
-        #         logger.warning("User {} has no chat-id", payload["user_id"])
-        #         return
-        #
-        #     bot = Bot(
-        #         PROFILES["air_drop"].token,     # ← общий «пользовательский» бот
-        #         default=DefaultBotProperties(parse_mode="HTML"),
-        #     )
-        #     await bot.send_message(chat_id, text)
-        #     return
+        if "user_id" in payload:
+            chat_id = await get_chat_by_user_id(int(payload["user_id"]))
+            if not chat_id:
+                logger.warning("User {} has no chat-id", payload["user_id"])
+                return
+
+            bot = Bot(
+                PROFILES["air_drop"].token,  # ← общий «пользовательский» бот
+                default=DefaultBotProperties(parse_mode="HTML"),
+            )
+            await bot.send_message(chat_id, text)
+            return
 
         logger.warning("Bad telegram payload: {}", payload)
