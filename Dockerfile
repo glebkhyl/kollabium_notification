@@ -8,4 +8,5 @@ WORKDIR /app
 
 COPY pyproject.toml uv.lock ./
 
-RUN uv sync --frozen
+RUN uv pip install -r pyproject.toml --system
+
