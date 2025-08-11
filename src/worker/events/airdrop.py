@@ -11,12 +11,12 @@ from worker.schemas.airdrop import ClickInviterCtx
 __all__ = ["handle_click_inviter"]
 
 
-async def handle_click_inviter(ctx: dict, profile: str):
+async def handle_click_inviter(ctx: dict, profile: str) -> None:
     text = AirdropLogs.render("CLICK_INVITER", **ctx)
     await REGISTRY["logs.telegram"].send({"text": text, "profile": profile})
 
 
-async def telegram_air_drop_all_done(ctx: dict):
+async def telegram_air_drop_all_done(ctx: dict) -> None:
     message = await CRUDRepository.get_alert_text(
         alert_type="telegram_air_drop_all_done"
     )
@@ -30,7 +30,7 @@ async def telegram_air_drop_all_done(ctx: dict):
         )
 
 
-async def telegram_air_drop_changed_to_inviter(ctx: dict):
+async def telegram_air_drop_changed_to_inviter(ctx: dict) -> None:
     message = await CRUDRepository.get_alert_text(
         alert_type="telegram_air_drop_changed_to_inviter"
     )
@@ -44,7 +44,7 @@ async def telegram_air_drop_changed_to_inviter(ctx: dict):
         )
 
 
-async def telegram_air_drop_start(ctx: dict):
+async def telegram_air_drop_start(ctx: dict) -> None:
     message = await CRUDRepository.get_alert_text(
         alert_type="telegram_air_drop_start"
     )
@@ -58,7 +58,7 @@ async def telegram_air_drop_start(ctx: dict):
         )
 
 
-async def telegram_air_drop_invitee_start_program(ctx: str):
+async def telegram_air_drop_invitee_start_program(ctx: str) -> None:
     message = await CRUDRepository.get_alert_text(
         alert_type="telegram_air_drop_invitee_start_program"
     )
@@ -76,7 +76,7 @@ async def telegram_air_drop_invitee_start_program(ctx: str):
         )
 
 
-async def telegram_air_drop_invitee_complite_program(ctx: str):
+async def telegram_air_drop_invitee_complite_program(ctx: str) -> None:
     message = await CRUDRepository.get_alert_text(
         alert_type="telegram_air_drop_invitee_complite_program"
     )
@@ -95,7 +95,7 @@ async def telegram_air_drop_invitee_complite_program(ctx: str):
         )
 
 
-async def telegram_air_drop_invitee_need_buy_plan(ctx: str):
+async def telegram_air_drop_invitee_need_buy_plan(ctx: str) -> None:
     message = await CRUDRepository.get_alert_text(
         alert_type="telegram_air_drop_invitee_need_buy_plan"
     )
@@ -114,9 +114,9 @@ async def telegram_air_drop_invitee_need_buy_plan(ctx: str):
         )
 
 
-async def telegram_air_drop_12_left(ctx: str):
+async def telegram_air_drop_invitee_lose12_hours(ctx: str) -> None:
     message = await CRUDRepository.get_alert_text(
-        alert_type="telegram_air_drop_12_left"
+        alert_type="telegram_air_drop_invitee_lose12_hours"
     )
     telegram_id = await CRUDRepository.get_user_telegram_id(
         user_id=ctx["user_id"]
@@ -130,6 +130,20 @@ async def telegram_air_drop_12_left(ctx: str):
     )
     if telegram_id and air_drop_data.complited is not True:
         text = format_telegram_message(template=message, name=name)
+        await REGISTRY["logs.telegram"].send(
+            {"text": text, "chat_id": telegram_id}
+        )
+
+
+async def telegram_air_drop_can_be_inviter(ctx: str) -> None:
+    message = await CRUDRepository.get_alert_text(
+        alert_type="telegram_air_drop_can_be_inviter"
+    )
+    telegram_id = await CRUDRepository.get_user_telegram_id(
+        user_id=ctx["user_id"]
+    )
+    if telegram_id:
+        text = format_telegram_message(template=message)
         await REGISTRY["logs.telegram"].send(
             {"text": text, "chat_id": telegram_id}
         )
