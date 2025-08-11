@@ -88,3 +88,41 @@ class User(Base):
         primaryjoin="User.apliner_user_id == User.id",
         viewonly=True,
     )
+
+
+class AirDropUsers(Base):
+    __tablename__ = "air_drop_users"
+
+    id = Column(BigInteger, primary_key=True)
+    user_id = Column(BigInteger, ForeignKey("users.id"), unique=True)
+    partner_id = Column(BigInteger, ForeignKey("users.id"))
+    bonus = Column(Integer, default=0)
+    ref_link = Column(Boolean, default=False)
+    email_confirmed = Column(Boolean, default=False)
+    avatar = Column(Boolean, default=False)
+    profile = Column(Boolean, default=False)
+    telegram = Column(Boolean, default=False)
+    first_post = Column(Boolean, default=False)
+    first_like = Column(Boolean, default=False)
+    complited = Column(Boolean, default=False)
+    plan_name = Column(Text, default=None)
+    active = Column(Boolean, default=False)
+    old_user = Column(Boolean, default=True)
+    created_at = Column(TIMESTAMP, default=datetime.utcnow)
+    updated_at = Column(TIMESTAMP, onupdate=datetime.utcnow)
+
+    user_info = relationship(
+        "User",
+        uselist=False,
+        foreign_keys=[user_id],
+        primaryjoin="AirDropUsers.user_id == User.id",
+        viewonly=True,
+    )
+
+    partner_info = relationship(
+        "User",
+        uselist=False,
+        foreign_keys=[partner_id],
+        primaryjoin=partner_id == User.id,
+        viewonly=True,
+    )

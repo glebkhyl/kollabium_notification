@@ -11,7 +11,7 @@ from sinks.base import Sink, register
 
 @register
 class TelegramSink(Sink):
-    channel = "logs.telegram"  # ← остаётся прежним
+    channel = "logs.telegram"
 
     async def send(self, payload: dict):
 

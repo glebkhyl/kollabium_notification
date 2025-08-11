@@ -5,6 +5,7 @@ from uuid import uuid4
 from faststream.nats import NatsMessage, NatsRouter
 from icecream import ic
 
+from core.nats_client import publish_logs, publish_schedule
 from worker.events import airdrop
 
 router = NatsRouter()
@@ -14,7 +15,7 @@ SCHEDULE_SUBJECT_AIRDROP = "schedule.airdrop"
 
 HANDLERS = {
     "telegram_air_drop_start": airdrop.telegram_air_drop_start,
-    "telegram_air_drop_12_left": airdrop.telegram_air_drop_all_done,  # INFO: need
+    "telegram_air_drop_12_left": airdrop.telegram_air_drop_12_left,  # INFO: need
     "telegram_air_drop_all_done": airdrop.telegram_air_drop_all_done,
     "telegram_air_drop_can_be_inviter": airdrop.telegram_air_drop_all_done,  # INFO: need
     "telegram_air_drop_changed_to_inviter": airdrop.telegram_air_drop_changed_to_inviter,
@@ -75,11 +76,7 @@ async def airdrop_scheduler(event: dict, msg: NatsMessage):
         "ctx": event.get("ctx") or {},
     }
     msg_id = event.get("id") or str(uuid4())
-    await router.broker.publish(
-        payload,
-        "logs.events",
-        headers={"Nats-Msg-Id": msg_id},
-    )
+    await publish_logs(payload, headers={"Nats-Msg-Id": msg_id})
     await msg.ack()
 
 
@@ -126,15 +123,14 @@ async def schedule_airdrop_after(
     id: Optional[str] = None,
 ) -> None:
     deliver_at = datetime.now(timezone.utc) + timedelta(hours=hours)
-    await router.broker.publish(
+    await publish_schedule(
         {
             "id": id or str(uuid4()),
             "kind": kind,
             "profile": profile,
             "ctx": ctx,
             "deliver_at": deliver_at.isoformat(),
-        },
-        SCHEDULE_SUBJECT_AIRDROP,
+        }
     )
 
 

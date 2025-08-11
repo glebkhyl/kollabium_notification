@@ -1,3 +1,4 @@
+from faststream.nats import message
 from icecream import ic
 
 from core.template_loader import render
@@ -102,10 +103,32 @@ async def telegram_air_drop_invitee_need_buy_plan(ctx: str):
         user_id=ctx["user_id"]
     )
     slave_data = await CRUDRepository.get_user_data(user_id=ctx["slave"])
+
     name = (
         slave_data.first_name if slave_data.first_name else slave_data.username
     )
     if telegram_id:
+        text = format_telegram_message(template=message, name=name)
+        await REGISTRY["logs.telegram"].send(
+            {"text": text, "chat_id": telegram_id}
+        )
+
+
+async def telegram_air_drop_12_left(ctx: str):
+    message = await CRUDRepository.get_alert_text(
+        alert_type="telegram_air_drop_12_left"
+    )
+    telegram_id = await CRUDRepository.get_user_telegram_id(
+        user_id=ctx["user_id"]
+    )
+    slave_data = await CRUDRepository.get_user_data(user_id=ctx["slave"])
+    air_drop_data = await CRUDRepository.get_air_drop_data(
+        user_id=ctx["slave"]
+    )
+    name = (
+        slave_data.first_name if slave_data.first_name else slave_data.username
+    )
+    if telegram_id and air_drop_data.complited is not True:
         text = format_telegram_message(template=message, name=name)
         await REGISTRY["logs.telegram"].send(
             {"text": text, "chat_id": telegram_id}

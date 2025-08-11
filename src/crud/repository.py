@@ -14,10 +14,18 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from core.database import new_session
-from crud.models import AlertText, User
+from crud.models import AirDropUsers, AlertText, User
 
 
 class CRUDRepository:
+
+    @classmethod
+    async def get_air_drop_data(cls, user_id) -> AirDropUsers:
+        async with new_session() as session:
+            drop_query = await session.execute(
+                select(AirDropUsers).where(AirDropUsers.user_id == user_id)
+            )
+            return drop_query.scalars().first()
 
     @classmethod
     async def get_user_with_apliner(cls, user_id):
