@@ -1,12 +1,16 @@
-import json
+from datetime import datetime, timedelta, timezone
+from typing import Any, Optional
+from uuid import uuid4
 
-from faststream.nats import NatsRouter
+from faststream.nats import NatsMessage, NatsRouter
 from icecream import ic
 
 from worker.events import airdrop
 
 router = NatsRouter()
 
+_MAX_CHUNK_SEC = 6 * 60 * 60
+SCHEDULE_SUBJECT_AIRDROP = "schedule.airdrop"
 
 HANDLERS = {
     "telegram_air_drop_start": airdrop.telegram_air_drop_start,
@@ -26,23 +30,121 @@ HANDLERS = {
 async def route_airdrop(event: dict):
     if event.get("channel") != "airdrop":
         return
-
-    kind = event.get("kind")
-    if kind == "CLICK_INVITER":
-        await airdrop.handle_click_inviter(event["ctx"], event["profile"])
+    if event.get("kind") == "CLICK_INVITER":
+        await airdrop.handle_click_inviter(
+            event.get("ctx") or {}, event.get("profile")
+        )
 
 
 @router.subscriber("user.events", queue="airdrop-users")
-async def route_airdrop(event: dict):
+async def route_airdrop_user(event: dict):
     if event.get("channel") != "telegram_airdrop_user":
         return
-
+    ic(event.get("ctx"))
+    ic(event.get("kind"))
     handler = HANDLERS.get(event.get("kind"))
     if handler:
-        await handler(event["ctx"])
+        await handler(event.get("ctx") or {})
     else:
-        from logging import getLogger
+        import logging
 
-        getLogger(__name__).warning(
-            "unhandled kind=%s for airdrop", event.get("kind")
+        logging.getLogger(__name__).warning(
+            "airdrop: unhandled kind=%s", event.get("kind")
         )
+
+
+@router.subscriber("schedule.airdrop", queue="airdrop-scheduler")
+async def airdrop_scheduler(event: dict, msg: NatsMessage):
+    kind = event.get("kind")
+    deliver_at = _parse_deliver_at(event.get("deliver_at"))
+    if not kind or not deliver_at:
+        await msg.ack()
+        return
+
+    now = datetime.now(timezone.utc)
+    if now < deliver_at:
+        delay = (deliver_at - now).total_seconds()
+        delay = max(1.0, min(delay, _MAX_CHUNK_SEC))
+        await msg.nack(delay=delay)
+        return
+
+    payload = {
+        "channel": "airdrop",
+        "kind": kind,
+        "profile": event.get("profile"),
+        "ctx": event.get("ctx") or {},
+    }
+    msg_id = event.get("id") or str(uuid4())
+    await router.broker.publish(
+        payload,
+        "logs.events",
+        headers={"Nats-Msg-Id": msg_id},
+    )
+    await msg.ack()
+
+
+def _parse_deliver_at(value: Any) -> Optional[datetime]:
+    if isinstance(value, datetime):
+        return (
+            value.astimezone(timezone.utc)
+            if value.tzinfo
+            else value.replace(tzinfo=timezone.utc)
+        )
+    if isinstance(value, (int, float)):
+        ts = float(value)
+        if ts > 1e12:
+            ts /= 1000.0
+        return datetime.fromtimestamp(ts, tz=timezone.utc)
+    if isinstance(value, str):
+        s = value.strip()
+        if s.endswith("Z"):
+            s = s[:-1] + "+00:00"
+        try:
+            dt = datetime.fromisoformat(s)
+            return (
+                dt.astimezone(timezone.utc)
+                if dt.tzinfo
+                else dt.replace(tzinfo=timezone.utc)
+            )
+        except Exception:
+            try:
+                ts = float(s)
+                if ts > 1e12:
+                    ts /= 1000.0
+                return datetime.fromtimestamp(ts, tz=timezone.utc)
+            except Exception:
+                return None
+    return None
+
+
+async def schedule_airdrop_after(
+    kind: str,
+    *,
+    hours: float,
+    ctx: dict,
+    profile: Optional[str] = None,
+    id: Optional[str] = None,
+) -> None:
+    deliver_at = datetime.now(timezone.utc) + timedelta(hours=hours)
+    await router.broker.publish(
+        {
+            "id": id or str(uuid4()),
+            "kind": kind,
+            "profile": profile,
+            "ctx": ctx,
+            "deliver_at": deliver_at.isoformat(),
+        },
+        SCHEDULE_SUBJECT_AIRDROP,
+    )
+
+
+async def schedule_airdrop_in_12h(
+    kind: str,
+    *,
+    ctx: dict,
+    profile: Optional[str] = None,
+    id: Optional[str] = None,
+) -> None:
+    await schedule_airdrop_after(
+        kind, hours=12, ctx=ctx, profile=profile, id=id
+    )
