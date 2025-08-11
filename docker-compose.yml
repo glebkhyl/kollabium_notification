@@ -8,6 +8,7 @@ services:
       - .:/app
     command: >
       sh -c "
+      cd ./src/ &&
       uv run faststream run main:fs --host 0.0.0.0
       "
 
