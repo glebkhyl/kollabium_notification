@@ -4,8 +4,8 @@ on:
     branches:
       - main
 jobs:
-  deploy:
-    name: Deploy
+  deploy-production:
+    name: Deploy on production server
     runs-on: ubuntu-latest
     steps:
     - name: Deploy
@@ -14,6 +14,29 @@ jobs:
         host: ${{ secrets.SSH_IP }}
         username: root
         key: ${{ secrets.SSH_KEY }}
+        port: 22
+        envs: GITHUB_SHA
+        command_timeout: 30m
+        script_stop: true
+        script: |
+          cd /opt/kollabium_notification
+          git fetch origin $GITHUB_SHA
+          git checkout $GITHUB_SHA
+          git reset --hard origin/main
+          git pull origin main
+          chmod +x deploy/script.bash
+          bash -c './deploy/script.bash'
+
+  deploy-development:
+    name: Deploy on development server
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SSH_IP_DEV }}
+        username: root
+        key: ${{ secrets.SSH_KEY_DEV }}
         port: 22
         envs: GITHUB_SHA
         command_timeout: 30m
