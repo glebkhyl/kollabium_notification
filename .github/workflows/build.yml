@@ -1,0 +1,28 @@
+name: Deploy production server
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SSH_IP }}
+        username: root
+        key: ${{ secrets.SSH_KEY }}
+        port: 22
+        envs: GITHUB_SHA
+        command_timeout: 30m
+        script_stop: true
+        script: |
+          cd /opt/kollabium_notification
+          git fetch origin $GITHUB_SHA
+          git checkout $GITHUB_SHA
+          git reset --hard origin/main
+          git pull origin main
+          chmod +x deploy/script.bash
+          bash -c './deploy/script.bash'

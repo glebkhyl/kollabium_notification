@@ -1,0 +1,26 @@
+services:
+  kollabium_notification:
+    build: .
+    restart: always
+    env_file:
+      - src/.env-non-dev
+    volumes:
+      - .:/app
+    command: >
+      sh -c "
+      uv run faststream run main:fs
+      "
+
+  nats: 
+    image: nats:latest
+    restart: always
+    ports:
+      - "4222:4222"
+      # - "6222:6222"
+      - "8222:8222"
+    volumes:
+      - nats_data:/data
+
+volumes:
+  nats_data:
+    driver: local
