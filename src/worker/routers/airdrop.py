@@ -41,8 +41,6 @@ async def route_airdrop(event: dict):
 async def route_airdrop_user(event: dict):
     if event.get("channel") != "telegram_airdrop_user":
         return
-    ic(event.get("ctx"))
-    ic(event.get("kind"))
     handler = HANDLERS.get(event.get("kind"))
     if handler:
         await handler(event.get("ctx") or {})
@@ -59,9 +57,9 @@ async def airdrop_scheduler(event: dict, msg: NatsMessage):
     kind = event.get("kind")
     deliver_at = _parse_deliver_at(event.get("deliver_at"))
     if not kind or not deliver_at:
+        ic()
         await msg.ack()
         return
-
     now = datetime.now(timezone.utc)
     if now < deliver_at:
         delay = (deliver_at - now).total_seconds()
