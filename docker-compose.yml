@@ -1,4 +1,24 @@
 services:
+
+  nats:
+    image: nats:2.11
+    restart: always
+    command: >
+      -js
+      -sd /data/jetstream
+      -m 8222
+    ports:
+      - "4222:4222"   
+      - "8222:8222"   
+    volumes:
+      - nats_data:/data
+    # healthcheck:
+    #   test: ["CMD", "wget", "-qO-", "http://localhost:8222/jetstream/info"]
+    #   interval: 5s
+    #   timeout: 3s
+    #   retries: 20
+
+
   kollabium_notification:
     build: .
     restart: always
@@ -12,15 +32,15 @@ services:
       uv run faststream run main:fs --host 0.0.0.0
       "
 
-  nats: 
-    image: nats:latest
-    restart: always
-    ports:
-      - "4222:4222"
-      # - "6222:6222"
-      - "8222:8222"
-    volumes:
-      - nats_data:/data
+  # nats: 
+  #   image: nats:latest
+  #   restart: always
+  #   ports:
+  #     - "4222:4222"
+  #     # - "6222:6222"
+  #     - "8222:8222"
+  #   volumes:
+  #     - nats_data:/data
 
 volumes:
   nats_data:
