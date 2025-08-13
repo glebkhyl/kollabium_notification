@@ -15,8 +15,8 @@ SCHEDULE_SUBJECT_AIRDROP = "schedule.airdrop"
 
 HANDLERS = {
     "telegram_air_drop_start": airdrop.telegram_air_drop_start,
-    "telegram_air_drop_12_left": airdrop.telegram_air_drop_12_left,
-    "telegram_air_drop_all_done": airdrop.telegram_air_drop_all_done,  # INFO: need
+    "telegram_air_drop_12_left": airdrop.telegram_air_drop_all_done,  # INFO: need
+    "telegram_air_drop_all_done": airdrop.telegram_air_drop_all_done,
     "telegram_air_drop_can_be_inviter": airdrop.telegram_air_drop_can_be_inviter,
     "telegram_air_drop_changed_to_inviter": airdrop.telegram_air_drop_changed_to_inviter,
     "telegram_air_drop_invitee_start_program": airdrop.telegram_air_drop_invitee_start_program,
@@ -57,7 +57,6 @@ async def airdrop_scheduler(event: dict, msg: NatsMessage):
     kind = event.get("kind")
     deliver_at = _parse_deliver_at(event.get("deliver_at"))
     if not kind or not deliver_at:
-        ic()
         await msg.ack()
         return
     now = datetime.now(timezone.utc)
