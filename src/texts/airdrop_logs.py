@@ -29,10 +29,27 @@ class AirdropLogs:
         "↖️ Приглашенный:</b> ID{invitee_id} | {invitee_email}\n\n"
     )
 
+    NEW_INVITER = (
+        "🔰 Новый Пригласитель 🔰\n\n"
+        "👤 Пользователь:</b> ID{invitee_id} | {invitee_email}\n\n"
+        "🔰 Условия AirDrop: ✅\n"
+        "🔰 Платный тариф: ✅ {invitee_plan}"
+    )
+
+    INVITER_CHANGE_PLAN = (
+        "🔄 Смена тарифа пригласителя 🔄\n\n"
+        "👤 Пользователь:</b> ID{invitee_id} | {invitee_email\n\n"
+        "📈 Изменения:\n"
+        "🔰 Старый тариф: {old_plan}\n"
+        "🔰 Новый тариф: {new_plan}\n\n"
+        "📊 Эффект: Бонус изменен на {amount} KOLLLABIUM"
+    )
+
     # INFO: добивить остальные
     @staticmethod
     def render(kind: str, **ctx) -> str:
         tpl = getattr(AirdropLogs, kind, None)
+        print("Пришли в шаблон")
         if tpl is None:
             raise ValueError(f"Шаблон “{kind}” не найден")
         return tpl.format(**ctx).strip()

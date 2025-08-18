@@ -36,7 +36,24 @@ async def route_airdrop(event: dict):
             event.get("ctx") or {}, event.get("profile")
         )
     if event.get("kind") == "NEW_REG":
-        await airdrop.handle_click_inviter(
+        print("newreg")
+        await airdrop.handle_new_reg(
+            event.get("ctx") or {}, event.get("profile")
+        )
+    if event.get("kind") == "INVITED_PERFORMACE_TERMS":
+        await airdrop.handle_new_reg(
+            event.get("ctx") or {}, event.get("profile")
+        )
+    if event.get("kind") == "TOKENS_SENT":
+        await airdrop.handle_tokens_sent(
+            event.get("ctx") or {}, event.get("profile")
+        )
+    if event.get("kind") == "NEW_INVITER":
+        await airdrop.handle_new_inviter(
+            event.get("ctx") or {}, event.get("profile")
+        )
+    if event.get("kind") == "INVITER_CHANGE_PLAN":
+        await airdrop.handle_inviter_change_plan(
             event.get("ctx") or {}, event.get("profile")
         )
 

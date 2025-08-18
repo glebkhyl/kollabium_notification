@@ -21,6 +21,26 @@ async def handle_new_reg(ctx: dict, profile: str) -> None:
     await REGISTRY["logs.telegram"].send({"text": text, "profile": profile})
 
 
+async def handle_invited_performace_terms(ctx: dict, profile: str) -> None:
+    text = AirdropLogs.render("INVITED_PERFORMACE_TERMS", **ctx)
+    await REGISTRY["logs.telegram"].send({"text": text, "profile": profile})
+
+
+async def handle_tokens_sent(ctx: dict, profile: str) -> None:
+    text = AirdropLogs.render("TOKENS_SENT", **ctx)
+    await REGISTRY["logs.telegram"].send({"text": text, "profile": profile})
+
+
+async def handle_new_inviter(ctx: dict, profile: str) -> None:
+    text = AirdropLogs.render("NEW_INVITER", **ctx)
+    await REGISTRY["logs.telegram"].send({"text": text, "profile": profile})
+
+
+async def handle_inviter_change_plan(ctx: dict, profile: str) -> None:
+    text = AirdropLogs.render("INVITER_CHANGE_PLAN", **ctx)
+    await REGISTRY["logs.telegram"].send({"text": text, "profile": profile})
+
+
 async def telegram_air_drop_all_done(ctx: dict) -> None:
     message = await CRUDRepository.get_alert_text(
         alert_type="telegram_air_drop_all_done"
