@@ -40,7 +40,7 @@ class AirdropLogs:
         "🔄 Смена тарифа пригласителя 🔄\n\n"
         "👤 Пользователь:</b> ID{invitee_id} | {invitee_email\n\n"
         "📈 Изменения:\n"
-        "🔰 Старый тариф: {old_plan}\n"
+        # "🔰 Старый тариф: {old_plan}\n"
         "🔰 Новый тариф: {new_plan}\n\n"
         "📊 Эффект: Бонус изменен на {amount} KOLLLABIUM"
     )
