@@ -22,6 +22,13 @@ class AirdropLogs:
         "📊 Статус: Готов к начислению токенов."
     )
 
+    TOKENS_SENT = (
+        "💰 Начисление токенов 💰\n\n"
+        "🎁 Награда: по {amount} KOLLABIUM\n"
+        "↘️ Пригласитель:</b> ID{inviter_id} | {inviter_email} | {inviter_plan}\n"
+        "↖️ Приглашенный:</b> ID{invitee_id} | {invitee_email}\n\n"
+    )
+
     # INFO: добивить остальные
     @staticmethod
     def render(kind: str, **ctx) -> str:

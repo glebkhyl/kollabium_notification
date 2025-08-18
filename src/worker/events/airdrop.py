@@ -16,6 +16,11 @@ async def handle_click_inviter(ctx: dict, profile: str) -> None:
     await REGISTRY["logs.telegram"].send({"text": text, "profile": profile})
 
 
+async def handle_new_reg(ctx: dict, profile: str) -> None:
+    text = AirdropLogs.render("NEW_REG", **ctx)
+    await REGISTRY["logs.telegram"].send({"text": text, "profile": profile})
+
+
 async def telegram_air_drop_all_done(ctx: dict) -> None:
     message = await CRUDRepository.get_alert_text(
         alert_type="telegram_air_drop_all_done"

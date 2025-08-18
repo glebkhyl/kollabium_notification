@@ -35,6 +35,10 @@ async def route_airdrop(event: dict):
         await airdrop.handle_click_inviter(
             event.get("ctx") or {}, event.get("profile")
         )
+    if event.get("kind") == "NEW_REG":
+        await airdrop.handle_click_inviter(
+            event.get("ctx") or {}, event.get("profile")
+        )
 
 
 @router.subscriber("user.events", queue="airdrop-users")
