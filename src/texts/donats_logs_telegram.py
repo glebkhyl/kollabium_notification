@@ -4,13 +4,13 @@ class DonatsLogs:
         "💸 Новый донат\n"
         "🧾 ID: #{donat_id}  \n"
         "🔰 Пользователь: {fio}\n"
-        "🔰 {user_id} | {email}\n"
+        "🔰 ID: {user_id} | {email}\n"
         "🔰 {user_name}\n"
         "💰 Сумма: {amount} ₽\n"
         "🕓 Время: {time} (MSK)"
     )
 
-    ADMIN_DONAT_PAID = (
+    ADMIN_DONAT_PAYED = (
         "✅ Донат оплачен\n"
         "🧾 ID: #{donat_id}  \n"
         "💰 Сумма: {amount} ₽\n"
@@ -22,7 +22,7 @@ class DonatsLogs:
         "🪙 Токены начислены\n"
         "🧾 ID: #{donat_id}  \n"
         "🔰 Пользователь: {fio}\n"
-        "🔰 {user_id} | {email}\n"
+        "🔰 ID: {user_id} | {email}\n"
         "🔰 {user_name}\n"
         "🔰 Курс: 1 KOL = {rate} ₽\n"
         "💰 Донат: {amount} ₽\n"
@@ -57,7 +57,7 @@ class DonatsLogs:
     )
 
     @staticmethod
-    def donat_render(kind: str, **ctx) -> str:
+    def render(kind: str, **ctx) -> str:
         tpl = getattr(DonatsLogs, kind, None)
         if tpl is None:
             raise ValueError(f"Шаблон “{kind}” не найден")

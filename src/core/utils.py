@@ -1,4 +1,5 @@
 import re
+from datetime import datetime, timedelta
 
 
 def format_telegram_message(template: str, **params) -> str:
@@ -10,3 +11,9 @@ def format_telegram_message(template: str, **params) -> str:
 
     formatted = re.sub(r"[ \t]{2,3}", _repl, filled)
     return formatted.strip()
+
+
+def to_msk(dt: datetime) -> datetime:
+    if dt is None:
+        return None
+    return dt + timedelta(hours=3)

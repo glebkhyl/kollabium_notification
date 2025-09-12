@@ -20,6 +20,13 @@ PROFILES: dict[str, TgProfile] = {
         ),
         chat=int(os.getenv("AIR_DROP_CHAT_ID", "-1002678250936")),
     ),
+    "donats_admin_logs": TgProfile(
+        token=os.getenv(
+            "USERS_BOT_TOKEN",
+            "6094800971:AAF1_u23PEoSurmX-MnKi3mwkGvunY2ZhZ4",
+        ),
+        chat=int(os.getenv("DONAT_CHAT_ID", "-1003046720444")),
+    ),
     "bbs": TgProfile(
         token=os.getenv("BBS_BOT_TOKEN"),
         chat=int(os.getenv("BBS_CHAT_ID", "-1001234567890")),

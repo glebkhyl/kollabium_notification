@@ -3,6 +3,7 @@ from typing import Any, Optional
 from uuid import uuid4
 
 from faststream.nats import NatsMessage, NatsRouter
+from icecream import ic
 
 from core.nats_client import (
     publish_logs,

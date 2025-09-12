@@ -14,10 +14,34 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import joinedload
 
 from core.database import new_session
-from crud.models import AirDropUsers, AlertText, User
+from crud.models import (
+    AirDropDonations,
+    AirdropJob,
+    AirDropUsers,
+    AlertText,
+    User,
+)
 
 
 class CRUDRepository:
+
+    @classmethod
+    async def get_air_drop_donations(cls, order_id: int) -> AirDropDonations:
+        async with new_session() as session:
+            query = await session.execute(
+                select(AirDropDonations).where(
+                    AirDropDonations.order_id == order_id
+                )
+            )
+            return query.scalars().first()
+
+    @classmethod
+    async def get_air_drop_job(cls, id: int) -> AirdropJob:
+        async with new_session() as session:
+            query = await session.execute(
+                select(AirdropJob).where(AirdropJob.id == id)
+            )
+            return query.scalars().first()
 
     @classmethod
     async def get_air_drop_data(cls, user_id) -> AirDropUsers:

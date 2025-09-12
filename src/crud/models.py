@@ -126,3 +126,49 @@ class AirDropUsers(Base):
         primaryjoin=partner_id == User.id,
         viewonly=True,
     )
+
+
+class AirDropDonations(Base):
+    __tablename__ = "air_drop_donations"
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    user_id = Column(BigInteger, ForeignKey("users.id"))
+    order_id = Column(BigInteger, nullable=False)
+    order_type = Column(String, nullable=False)
+    amount = Column(Integer, default=0)
+    currency = Column(String)
+    payed = Column(Boolean, default=None, nullable=True)
+    status = Column(String, default="NEW")
+    created_at = Column(TIMESTAMP, default=datetime.utcnow)
+    updated_at = Column(TIMESTAMP, onupdate=datetime.utcnow)
+
+
+class QueueStatus:
+    QUEUED = "QUEUED"
+    SENDING = "SENDING"
+    SENT = "SENT"
+    RETRYING = "RETRYING"
+    FAILED = "FAILED"
+    MANUAL_REQUIRED = "MANUAL_REQUIRED"
+    IN_PROGRESS = "IN_PROGRESS"
+
+
+class AirdropJob(Base):
+    __tablename__ = "airdrop_jobs"
+
+    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    user_id = Column(BigInteger, nullable=False)
+    tokens = Column(String(64), nullable=False)
+    status = Column(String(24), default=QueueStatus.QUEUED, index=True)
+    amount = Column(Integer, default=0, nullable=True)
+    currency = Column(String, nullable=True)
+    retries = Column(Integer, default=0)
+    error = Column(Text, nullable=True)
+    attempts = Column(Integer, nullable=False, default=0)
+    correlation_id = Column(String(128), nullable=True, index=True)
+    meta = Column(Text, nullable=True)
+    not_before = Column(TIMESTAMP, nullable=True, index=True)
+    created_at = Column(TIMESTAMP, default=datetime.utcnow)
+    sent_at = Column(TIMESTAMP, nullable=True)
+    started_at = Column(TIMESTAMP, nullable=True)
+    finished_at = Column(TIMESTAMP, nullable=True)
