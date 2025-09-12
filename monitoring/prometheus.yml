@@ -1,0 +1,14 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  # Метрики NATS через официальный экспортер
+  - job_name: "nats"
+    static_configs:
+      - targets: ["nats-exporter:7777"]
+
+  # Метрики твоего лог-сервиса (FastAPI/Prometheus client на 9100)
+  - job_name: "log-service"
+    static_configs:
+      - targets: ["kollabium_notification:9100"]

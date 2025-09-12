@@ -9,4 +9,4 @@ src/.env
 
 # Virtual environments
 .venv
-src/.env-non-dev
+# src/.env-non-dev

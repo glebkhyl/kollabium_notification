@@ -47,7 +47,6 @@ class AirdropLogs:
     @staticmethod
     def render(kind: str, **ctx) -> str:
         tpl = getattr(AirdropLogs, kind, None)
-        print("Пришли в шаблон")
         if tpl is None:
             raise ValueError(f"Шаблон “{kind}” не найден")
         return tpl.format(**ctx).strip()

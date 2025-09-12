@@ -1,5 +1,4 @@
 services:
-
   nats:
     image: nats:2.11
     restart: always
@@ -8,22 +7,33 @@ services:
       -sd /data/jetstream
       -m 8222
     ports:
-      - "4222:4222"   
-      - "8222:8222"   
+      - "4222:4222"
+      - "8222:8222"
     volumes:
       - nats_data:/data
-    # healthcheck:
-    #   test: ["CMD", "wget", "-qO-", "http://localhost:8222/jetstream/info"]
-    #   interval: 5s
-    #   timeout: 3s
-    #   retries: 20
 
+  nats-exporter:
+    image: natsio/prometheus-nats-exporter:latest
+    command:
+      - "-varz"
+      - "-connz"
+      - "-subz"
+      - "-jsz=all"
+      - "http://nats:8222"
+    restart: always
+    depends_on:
+      - nats
+    ports:
+      - "7777:7777"
 
   kollabium_notification:
     build: .
     restart: always
     env_file:
       - src/.env-non-dev
+    environment:
+      # важно: внутри контейнера обращаться к NATS по имени сервиса "nats"
+      - NATS_URL=nats://nats:4222
     volumes:
       - .:/app
     command: >
@@ -31,17 +41,39 @@ services:
       cd ./src/ &&
       uv run faststream run main:fs --host 0.0.0.0
       "
+    ports:
+      - "9100:9100"   # /metrics твоего сервиса
+    depends_on:
+      - nats
 
-  # nats: 
-  #   image: nats:latest
-  #   restart: always
-  #   ports:
-  #     - "4222:4222"
-  #     # - "6222:6222"
-  #     - "8222:8222"
-  #   volumes:
-  #     - nats_data:/data
+  prometheus:
+    image: prom/prometheus:latest
+    restart: always
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prom_data:/prometheus
+    ports:
+      - "9090:9090"
+    depends_on:
+      - nats-exporter
+      - kollabium_notification
+
+  grafana:
+    image: grafana/grafana:latest
+    restart: always
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_DEFAULT_THEME=light
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
 
 volumes:
   nats_data:
     driver: local
+  prom_data:
+  grafana_data:

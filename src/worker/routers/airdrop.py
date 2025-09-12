@@ -3,10 +3,16 @@ from typing import Any, Optional
 from uuid import uuid4
 
 from faststream.nats import NatsMessage, NatsRouter
-from icecream import ic
 
-from core.nats_client import publish_logs, publish_schedule
+from core.nats_client import (
+    publish_logs,
+    publish_schedule,
+    stream_logs,
+    stream_sched,
+    stream_user,
+)
 from worker.events import airdrop
+from worker.metrics import logs_consume_failed_total, logs_consume_total
 
 router = NatsRouter()
 
@@ -15,7 +21,7 @@ SCHEDULE_SUBJECT_AIRDROP = "schedule.airdrop"
 
 HANDLERS = {
     "telegram_air_drop_start": airdrop.telegram_air_drop_start,
-    "telegram_air_drop_12_left": airdrop.telegram_air_drop_all_done,  # INFO: need
+    "telegram_air_drop_12_left": airdrop.telegram_air_drop_all_done,  # TODO: уточнить
     "telegram_air_drop_all_done": airdrop.telegram_air_drop_all_done,
     "telegram_air_drop_can_be_inviter": airdrop.telegram_air_drop_can_be_inviter,
     "telegram_air_drop_changed_to_inviter": airdrop.telegram_air_drop_changed_to_inviter,
@@ -23,79 +29,117 @@ HANDLERS = {
     "telegram_air_drop_invitee_lose12_hours": airdrop.telegram_air_drop_invitee_lose12_hours,
     "telegram_air_drop_invitee_complite_program": airdrop.telegram_air_drop_invitee_complite_program,
     "telegram_air_drop_invitee_need_buy_plan": airdrop.telegram_air_drop_invitee_need_buy_plan,
-    "telegram_air_drop_invitee_to_be_inviter": airdrop.telegram_air_drop_all_done,  # INFO: need
+    "telegram_air_drop_invitee_to_be_inviter": airdrop.telegram_air_drop_all_done,  # TODO: уточнить
 }
 
 
-@router.subscriber("logs.events", queue="airdrop-workers")
+@router.subscriber("logs.events", queue="airdrop-workers", stream=stream_logs)
 async def route_airdrop(event: dict):
+    subject = "logs.events"
+    kind = str(event.get("kind", ""))
     if event.get("channel") != "airdrop":
         return
-    if event.get("kind") == "CLICK_INVITER":
-        await airdrop.handle_click_inviter(
-            event.get("ctx") or {}, event.get("profile")
-        )
-    if event.get("kind") == "NEW_REG":
-        print("newreg")
-        await airdrop.handle_new_reg(
-            event.get("ctx") or {}, event.get("profile")
-        )
-    if event.get("kind") == "INVITED_PERFORMACE_TERMS":
-        await airdrop.handle_new_reg(
-            event.get("ctx") or {}, event.get("profile")
-        )
-    if event.get("kind") == "TOKENS_SENT":
-        await airdrop.handle_tokens_sent(
-            event.get("ctx") or {}, event.get("profile")
-        )
-    if event.get("kind") == "NEW_INVITER":
-        await airdrop.handle_new_inviter(
-            event.get("ctx") or {}, event.get("profile")
-        )
-    if event.get("kind") == "INVITER_CHANGE_PLAN":
-        await airdrop.handle_inviter_change_plan(
-            event.get("ctx") or {}, event.get("profile")
-        )
+
+    try:
+        if kind == "CLICK_INVITER":
+            await airdrop.handle_click_inviter(
+                event.get("ctx") or {}, event.get("profile")
+            )
+        elif kind == "NEW_REG":
+            await airdrop.handle_new_reg(
+                event.get("ctx") or {}, event.get("profile")
+            )
+        elif kind == "INVITED_PERFORMACE_TERMS":
+            await airdrop.handle_new_reg(
+                event.get("ctx") or {}, event.get("profile")
+            )
+        elif kind == "TOKENS_SENT":
+            await airdrop.handle_tokens_sent(
+                event.get("ctx") or {}, event.get("profile")
+            )
+        elif kind == "NEW_INVITER":
+            await airdrop.handle_new_inviter(
+                event.get("ctx") or {}, event.get("profile")
+            )
+        elif kind == "INVITER_CHANGE_PLAN":
+            await airdrop.handle_inviter_change_plan(
+                event.get("ctx") or {}, event.get("profile")
+            )
+        else:
+            return
+
+        logs_consume_total.labels(subject=subject, kind=kind).inc()
+    except Exception as e:
+        logs_consume_failed_total.labels(
+            subject=subject, kind=kind, error=type(e).__name__
+        ).inc()
+        raise
 
 
-@router.subscriber("user.events", queue="airdrop-users")
+@router.subscriber("user.events", queue="airdrop-users", stream=stream_user)
 async def route_airdrop_user(event: dict):
+    subject = "user.events"
+    kind = str(event.get("kind", ""))
+
     if event.get("channel") != "telegram_airdrop_user":
         return
-    handler = HANDLERS.get(event.get("kind"))
-    if handler:
-        await handler(event.get("ctx") or {})
-    else:
+
+    handler = HANDLERS.get(kind)
+    if not handler:
         import logging
 
-        logging.getLogger(__name__).warning(
-            "airdrop: unhandled kind=%s", event.get("kind")
-        )
+        logging.getLogger(__name__).warning("airdrop: unhandled kind=%s", kind)
+        return
+
+    try:
+        await handler(event.get("ctx") or {})
+        logs_consume_total.labels(subject=subject, kind=kind).inc()
+    except Exception as e:
+        logs_consume_failed_total.labels(
+            subject=subject, kind=kind, error=type(e).__name__
+        ).inc()
+        raise
 
 
-@router.subscriber("schedule.airdrop", queue="airdrop-scheduler")
+@router.subscriber(
+    "schedule.airdrop", queue="airdrop-scheduler", stream=stream_sched
+)
 async def airdrop_scheduler(event: dict, msg: NatsMessage):
-    kind = event.get("kind")
-    deliver_at = _parse_deliver_at(event.get("deliver_at"))
-    if not kind or not deliver_at:
-        await msg.ack()
-        return
-    now = datetime.now(timezone.utc)
-    if now < deliver_at:
-        delay = (deliver_at - now).total_seconds()
-        delay = max(1.0, min(delay, _MAX_CHUNK_SEC))
-        await msg.nack(delay=delay)
-        return
+    subject = "schedule.airdrop"
+    kind = str(event.get("kind", ""))
 
-    payload = {
-        "channel": "airdrop",
-        "kind": kind,
-        "profile": event.get("profile"),
-        "ctx": event.get("ctx") or {},
-    }
-    msg_id = event.get("id") or str(uuid4())
-    await publish_logs(payload, headers={"Nats-Msg-Id": msg_id})
-    await msg.ack()
+    try:
+        deliver_at = _parse_deliver_at(event.get("deliver_at"))
+        if not kind or not deliver_at:
+            await msg.ack()
+            return
+
+        now = datetime.now(timezone.utc)
+        if now < deliver_at:
+            delay = (deliver_at - now).total_seconds()
+            delay = max(1.0, min(delay, _MAX_CHUNK_SEC))
+            await msg.nack(delay=delay)
+            logs_consume_total.labels(
+                subject=subject, kind=f"{kind}:rescheduled"
+            ).inc()
+            return
+        payload = {
+            "channel": "airdrop",
+            "kind": kind,
+            "profile": event.get("profile"),
+            "ctx": event.get("ctx") or {},
+        }
+        msg_id = event.get("id") or str(uuid4())
+        await publish_logs(payload, headers={"Nats-Msg-Id": msg_id})
+
+        await msg.ack()
+        logs_consume_total.labels(subject=subject, kind=kind).inc()
+
+    except Exception as e:
+        logs_consume_failed_total.labels(
+            subject=subject, kind=kind, error=type(e).__name__
+        ).inc()
+        raise
 
 
 def _parse_deliver_at(value: Any) -> Optional[datetime]:
