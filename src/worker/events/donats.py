@@ -62,5 +62,10 @@ async def handle_payment_failed(ctx: dict, profile: str) -> None:
         "time": time,
         "user_name": user_data.username,
     }
+    user_text_data = {"amount": donation_data.amount}
     text = DonatsLogs.render("ADMIN_PAYMENT_FAILED", **data)
+    user_text = DonatsLogs.render("DONAT_PAID_USER", **user_text_data)
     await REGISTRY["logs.telegram"].send({"text": text, "profile": profile})
+    await REGISTRY["logs.telegram"].send(
+        {"text": user_text, "chat_id": user_data.telegram_id}
+    )
