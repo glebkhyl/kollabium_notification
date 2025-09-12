@@ -34,10 +34,10 @@ async def route_airdrop(event: dict):
             await donats.handle_donat_payed(
                 event.get("ctx") or {}, event.get("profile")
             )
-        # elif kind == "ADMIN_TOKENS_SENT":
-        #     await airdrop.handle_new_reg(
-        #         event.get("ctx") or {}, event.get("profile")
-        #     )
+        elif kind == "ADMIN_PAYMENT_FAILED":
+            await donats.handle_payment_failed(
+                event.get("ctx") or {}, event.get("profile")
+            )
         # elif kind == "ADMIN_PAYMENT_EXPIRED":
         #     await airdrop.handle_tokens_sent(
         #         event.get("ctx") or {}, event.get("profile")

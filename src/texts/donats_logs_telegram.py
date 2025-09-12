@@ -31,6 +31,16 @@ class DonatsLogs:
         "📅 Дата: {time}"
     )
 
+    ADMIN_PAYMENT_FAILED = (
+        "⏳ Дона получил статус FAIL\n"
+        "🧾 ID: #{donat_id}  \n"
+        "🔰 Пользователь: {fio}\n"
+        "🔰 {user_id} | {email}\n"
+        "🔰 {user_name}\n"
+        "💰 Сумма: {amount} ₽\n"
+        "📅 {time} (MSK)"
+    )
+
     ADMIN_PAYMENT_EXPIRED = (
         "⏳ Время оплаты истекло\n"
         "🧾 ID: #{donat_id}  \n"

@@ -42,3 +42,25 @@ async def handle_donat_payed(ctx: dict, profile: str) -> None:
     }
     text = DonatsLogs.render("ADMIN_DONAT_PAYED", **data)
     await REGISTRY["logs.telegram"].send({"text": text, "profile": profile})
+
+
+async def handle_payment_failed(ctx: dict, profile: str) -> None:
+    donation_data = await CRUDRepository.get_air_drop_donations(
+        order_id=ctx.get("order_id")
+    )
+    user_data = await CRUDRepository.get_user_data(
+        user_id=donation_data.user_id
+    )
+    fio = f"{user_data.first_name} {user_data.last_name}"
+    time = to_msk(donation_data.created_at)
+    data = {
+        "donat_id": ctx.get("order_id"),
+        "fio": fio,
+        "user_id": user_data.id,
+        "email": user_data.email,
+        "amount": donation_data.amount,
+        "time": time,
+        "user_name": user_data.username,
+    }
+    text = DonatsLogs.render("ADMIN_PAYMENT_FAILED", **data)
+    await REGISTRY["logs.telegram"].send({"text": text, "profile": profile})
