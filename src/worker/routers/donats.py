@@ -30,10 +30,10 @@ async def route_airdrop(event: dict):
             await donats.handle_new_donat_created(
                 event.get("ctx") or {}, event.get("profile")
             )
-        # elif kind == "ADMIN_NEW_DONAT_CREATED":
-        #     await airdrop.handle_new_reg(
-        #         event.get("ctx") or {}, event.get("profile")
-        #     )
+        elif kind == "ADMIN_DONAT_PAYED":
+            await donats.handle_donat_payed(
+                event.get("ctx") or {}, event.get("profile")
+            )
         # elif kind == "ADMIN_TOKENS_SENT":
         #     await airdrop.handle_new_reg(
         #         event.get("ctx") or {}, event.get("profile")
