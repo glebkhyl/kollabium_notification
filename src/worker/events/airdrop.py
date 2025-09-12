@@ -91,6 +91,9 @@ async def telegram_air_drop_invitee_start_program(ctx: str) -> None:
         user_id=ctx["user_id"]
     )
     slave_data = await CRUDRepository.get_user_data(user_id=ctx["slave"])
+    if slave_data is None:
+        # logger.warning("airdrop: user not found, id=%s", slave_id)
+        return
     name = (
         slave_data.first_name if slave_data.first_name else slave_data.username
     )
@@ -109,6 +112,9 @@ async def telegram_air_drop_invitee_complite_program(ctx: str) -> None:
         user_id=ctx["user_id"]
     )
     slave_data = await CRUDRepository.get_user_data(user_id=ctx["slave"])
+    if slave_data is None:
+        # logger.warning("airdrop: user not found, id=%s", slave_id)
+        return
     name = (
         slave_data.first_name if slave_data.first_name else slave_data.username
     )
@@ -128,7 +134,9 @@ async def telegram_air_drop_invitee_need_buy_plan(ctx: str) -> None:
         user_id=ctx["user_id"]
     )
     slave_data = await CRUDRepository.get_user_data(user_id=ctx["slave"])
-
+    if slave_data is None:
+        # logger.warning("airdrop: user not found, id=%s", slave_id)
+        return
     name = (
         slave_data.first_name if slave_data.first_name else slave_data.username
     )
@@ -147,6 +155,9 @@ async def telegram_air_drop_invitee_lose12_hours(ctx: str) -> None:
         user_id=ctx["user_id"]
     )
     slave_data = await CRUDRepository.get_user_data(user_id=ctx["slave"])
+    if slave_data is None:
+        # logger.warning("airdrop: user not found, id=%s", slave_id)
+        return
     air_drop_data = await CRUDRepository.get_air_drop_data(
         user_id=ctx["slave"]
     )
