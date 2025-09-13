@@ -39,9 +39,8 @@ async def route_airdrop(event: dict):
                 event.get("ctx") or {}, event.get("profile")
             )
         elif kind == "TOKENS_AIRDROP_USER":
-            await donats.tokens_airdrop_user(
-                event.get("ctx") or {}, event.get("profile")
-            )
+            await donats.tokens_airdrop_user(event.get("ctx") or {})
+
         else:
             return
 
