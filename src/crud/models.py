@@ -28,6 +28,19 @@ class AlertText(Base):
     updated_at = Column(TIMESTAMP, onupdate=datetime.utcnow)
 
 
+class PaymentSetting(Base):
+    __tablename__: str = "payment_settings"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    display_name = Column(String, nullable=False)
+    description = Column(String)
+    value = Column(String)
+    type = Column(String)
+    created_at = Column(TIMESTAMP, default=datetime.utcnow)
+    updated_at = Column(TIMESTAMP, onupdate=datetime.utcnow)
+
+
 class User(Base):
     __tablename__ = "users"
     __table_args__ = {"extend_existing": True}

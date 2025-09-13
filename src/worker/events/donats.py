@@ -1,3 +1,4 @@
+import ast
 from decimal import Decimal
 
 from core.utils import to_msk
@@ -20,7 +21,7 @@ async def handle_new_donat_created(ctx: dict, profile: str) -> None:
         "fio": fio,
         "user_id": user_data.id,
         "email": user_data.email,
-        "user_name": user_data.username,
+        "user_name": user_data.telegram_login,
         "amount": donation_data.amount,
         "time": time,
     }
@@ -40,7 +41,7 @@ async def handle_donat_payed(ctx: dict, profile: str) -> None:
         "donat_id": ctx.get("order_id"),
         "amount": donation_data.amount,
         "time": time,
-        "user_name": user_data.username,
+        "user_name": user_data.telegram_login,
     }
     text = DonatsLogs.render("ADMIN_DONAT_PAYED", **data)
     await REGISTRY["logs.telegram"].send({"text": text, "profile": profile})
@@ -62,7 +63,7 @@ async def handle_payment_failed(ctx: dict, profile: str) -> None:
         "email": user_data.email,
         "amount": donation_data.amount,
         "time": time,
-        "user_name": user_data.username,
+        "user_name": user_data.telegram_login,
     }
     user_text_data = {"amount": donation_data.amount}
     text = DonatsLogs.render("ADMIN_PAYMENT_FAILED", **data)
@@ -81,4 +82,24 @@ async def tokens_airdrop_user(ctx: dict) -> None:
     text = DonatsLogs.render("TOKENS_AIRDROP_USER", **data)
     await REGISTRY["logs.telegram"].send(
         {"text": text, "chat_id": user_data.telegram_id}
+    )
+    fio = f"{user_data.first_name} {user_data.last_name}"
+    time = to_msk(job_data.finished_at)
+    exchange_data = await CRUDRepository.get_settings_exchange_rates()
+    exchange_dict = ast.literal_eval(exchange_data.value)
+    exchange = exchange_dict["rub"]
+    data_adin_log = {
+        "donat_id": job_data.id,
+        "fio": fio,
+        "user_id": user_data.id,
+        "email": user_data.email,
+        "user_name": user_data.telegram_login,
+        "rate": exchange,
+        "amount": job_data.amount,
+        "kol_amount": kol_amount,
+        "time": time,
+    }
+    admin_text = DonatsLogs.render("ADMIN_TOKENS_SENT", **data_adin_log)
+    await REGISTRY["logs.telegram"].send(
+        {"text": admin_text, "profile": "donats_admin_logs"}
     )

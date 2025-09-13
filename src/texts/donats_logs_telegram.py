@@ -5,7 +5,7 @@ class DonatsLogs:
         "🧾 ID: #{donat_id}  \n"
         "🔰 Пользователь: {fio}\n"
         "🔰 ID: {user_id} | {email}\n"
-        "🔰 {user_name}\n"
+        "🔰 @{user_name}\n"
         "💰 Сумма: {amount} ₽\n"
         "🕓 Время: {time} (MSK)"
     )
@@ -23,11 +23,23 @@ class DonatsLogs:
         "🧾 ID: #{donat_id}  \n"
         "🔰 Пользователь: {fio}\n"
         "🔰 ID: {user_id} | {email}\n"
-        "🔰 {user_name}\n"
+        "🔰 @{user_name}\n"
         "🔰 Курс: 1 KOL = {rate} ₽\n"
         "💰 Донат: {amount} ₽\n"
         "💎 KOLLABIUM: {kol_amount} KOL\n"
         "👛 Кошелёк: {wallet}\n"
+        "📅 Дата: {time}"
+    )
+
+    ADMIN_TOKENS_SENT = (
+        "🪙 Токены отправлены\n"
+        "🧾 ID задачи: #{donat_id}  \n\n"
+        "🔰 Пользователь: {fio}\n"
+        "🔰 ID: {user_id} | {email}\n"
+        "🔰 Telegram: @{user_name}\n\n"
+        "🔰 Курс: 1 KOL = {rate} ₽\n\n"
+        "💰 Донат: {amount} ₽\n"
+        "💎 KOLLABIUM: {kol_amount} KOL\n"
         "📅 Дата: {time}"
     )
 
@@ -36,7 +48,7 @@ class DonatsLogs:
         "🧾 ID: #{donat_id}  \n"
         "🔰 Пользователь: {fio}\n"
         "🔰 {user_id} | {email}\n"
-        "🔰 {user_name}\n"
+        "🔰 @{user_name}\n"
         "💰 Сумма: {amount} ₽\n"
         "📅 {time} (MSK)"
     )
@@ -46,7 +58,7 @@ class DonatsLogs:
         "🧾 ID: #{donat_id}  \n"
         "🔰 Пользователь: {fio}\n"
         "🔰 {user_id} | {email}\n"
-        "🔰 {user_name}\n"
+        "🔰 @{user_name}\n"
         "💰 Сумма: {amount} ₽\n"
         "📌 Статус: Неуспешная оплата — сессия завершена\n"
         "📅 {time} (MSK)"

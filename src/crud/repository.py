@@ -19,11 +19,25 @@ from crud.models import (
     AirdropJob,
     AirDropUsers,
     AlertText,
+    PaymentSetting,
     User,
 )
+from crud.schemas import ExchangeSettings
 
 
 class CRUDRepository:
+
+    @classmethod
+    async def get_settings_exchange_rates(cls):
+        async with new_session() as session:
+            query = await session.execute(
+                select(PaymentSetting).where(
+                    PaymentSetting.name == "kollabium_price"
+                )
+            )
+            settings_models = query.scalars().first()
+            settings_schemas = ExchangeSettings.model_validate(settings_models)
+            return settings_schemas
 
     @classmethod
     async def get_air_drop_donations(cls, order_id: int) -> AirDropDonations:
