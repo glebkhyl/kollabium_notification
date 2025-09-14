@@ -43,8 +43,13 @@ async def handle_donat_payed(ctx: dict, profile: str) -> None:
         "time": time,
         "user_name": user_data.telegram_login,
     }
+    user_text_data = {"amount": donation_data.amount}
+    user_text = DonatsLogs.render("DONAT_PAID_USER", **user_text_data)
     text = DonatsLogs.render("ADMIN_DONAT_PAYED", **data)
     await REGISTRY["logs.telegram"].send({"text": text, "profile": profile})
+    await REGISTRY["logs.telegram"].send(
+        {"text": user_text, "chat_id": user_data.telegram_id}
+    )
 
 
 async def handle_payment_failed(ctx: dict, profile: str) -> None:
@@ -65,13 +70,10 @@ async def handle_payment_failed(ctx: dict, profile: str) -> None:
         "time": time,
         "user_name": user_data.telegram_login,
     }
-    user_text_data = {"amount": donation_data.amount}
+
     text = DonatsLogs.render("ADMIN_PAYMENT_FAILED", **data)
-    # user_text = DonatsLogs.render("DONAT_PAID_USER", **user_text_data)
+
     await REGISTRY["logs.telegram"].send({"text": text, "profile": profile})
-    # await REGISTRY["logs.telegram"].send(
-    #     {"text": user_text, "chat_id": user_data.telegram_id}
-    # )
 
 
 async def tokens_airdrop_user(ctx: dict) -> None:
