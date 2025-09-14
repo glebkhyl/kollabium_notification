@@ -67,11 +67,11 @@ async def handle_payment_failed(ctx: dict, profile: str) -> None:
     }
     user_text_data = {"amount": donation_data.amount}
     text = DonatsLogs.render("ADMIN_PAYMENT_FAILED", **data)
-    user_text = DonatsLogs.render("DONAT_PAID_USER", **user_text_data)
+    # user_text = DonatsLogs.render("DONAT_PAID_USER", **user_text_data)
     await REGISTRY["logs.telegram"].send({"text": text, "profile": profile})
-    await REGISTRY["logs.telegram"].send(
-        {"text": user_text, "chat_id": user_data.telegram_id}
-    )
+    # await REGISTRY["logs.telegram"].send(
+    #     {"text": user_text, "chat_id": user_data.telegram_id}
+    # )
 
 
 async def tokens_airdrop_user(ctx: dict) -> None:
@@ -88,7 +88,7 @@ async def tokens_airdrop_user(ctx: dict) -> None:
     exchange_data = await CRUDRepository.get_settings_exchange_rates()
     exchange_dict = ast.literal_eval(exchange_data.value)
     exchange = exchange_dict["rub"]
-    data_adin_log = {
+    data_admin_log = {
         "donat_id": job_data.id,
         "fio": fio,
         "user_id": user_data.id,
@@ -99,7 +99,7 @@ async def tokens_airdrop_user(ctx: dict) -> None:
         "kol_amount": kol_amount,
         "time": time,
     }
-    admin_text = DonatsLogs.render("ADMIN_TOKENS_SENT", **data_adin_log)
+    admin_text = DonatsLogs.render("ADMIN_TOKENS_SENT", **data_admin_log)
     await REGISTRY["logs.telegram"].send(
         {"text": admin_text, "profile": "donats_admin_logs"}
     )
