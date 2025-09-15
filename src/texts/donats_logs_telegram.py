@@ -11,25 +11,28 @@ class DonatsLogs:
     )
 
     ADMIN_DONAT_PAYED = (
-        "✅ Донат оплачен\n"
-        "🧾 ID: #{donat_id}  \n"
-        "💰 Сумма: {amount} ₽\n"
-        "📅 Дата оплаты: {time}\n"
-        "🔰 Пользователь: {user_name}"
-    )
-
-    ADMIN_TOKENS_SENT = (
-        "🪙 Токены начислены\n"
-        "🧾 ID: #{donat_id}  \n"
+        "✅ Донат оплачен | {type}\n"
+        "🧾 ID: #{donat_id}  \n\n"
         "🔰 Пользователь: {fio}\n"
         "🔰 ID: {user_id} | {email}\n"
-        "🔰 @{user_name}\n"
-        "🔰 Курс: 1 KOL = {rate} ₽\n"
-        "💰 Донат: {amount} ₽\n"
-        "💎 KOLLABIUM: {kol_amount} KOL\n"
-        "👛 Кошелёк: {wallet}\n"
-        "📅 Дата: {time}"
+        "🔰 Telegram: @{user_name}\n\n"
+        "💰 Сумма: {amount} ₽\n"
+        "💎 KOLLABIUM: {kol_amount}"
+        "📅 Дата оплаты: {time}\n"
     )
+
+    # ADMIN_TOKENS_SENT = (
+    #     "🪙 Токены начислены\n"
+    #     "🧾 ID: #{donat_id}  \n"
+    #     "🔰 Пользователь: {fio}\n"
+    #     "🔰 ID: {user_id} | {email}\n"
+    #     "🔰 @{user_name}\n"
+    #     "🔰 Курс: 1 KOL = {rate} ₽\n"
+    #     "💰 Донат: {amount} ₽\n"
+    #     "💎 KOLLABIUM: {kol_amount} KOL\n"
+    #     "👛 Кошелёк: {wallet}\n"
+    #     "📅 Дата: {time}"
+    # )
 
     ADMIN_TOKENS_SENT = (
         "🪙 Токены отправлены\n"

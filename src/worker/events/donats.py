@@ -1,6 +1,8 @@
 import ast
 from decimal import Decimal
 
+from sqlalchemy import except_
+
 from core.utils import to_msk
 from crud.repository import CRUDRepository
 from sinks import REGISTRY
@@ -36,12 +38,25 @@ async def handle_donat_payed(ctx: dict, profile: str) -> None:
     user_data = await CRUDRepository.get_user_data(
         user_id=donation_data.user_id
     )
+    fio = f"{user_data.first_name} {user_data.last_name}"
     time = to_msk(donation_data.created_at)
+    try:
+        exchange_data = await CRUDRepository.get_settings_exchange_rates()
+        exchange_dict = ast.literal_eval(exchange_data.value)
+        exchange = exchange_dict["rub"]
+        kol_amount = Decimal(donation_data.amount) * Decimal(exchange)
+    except:
+        kol_amount = 0
     data = {
+        "type": "СБП",
         "donat_id": ctx.get("order_id"),
-        "amount": donation_data.amount,
-        "time": time,
+        "fio": fio,
+        "user_id": user_data.id,
+        "email": user_data.email,
         "user_name": user_data.telegram_login,
+        "amount": donation_data.amount,
+        "kol_amount": kol_amount,
+        "time": time,
     }
     user_text_data = {"amount": donation_data.amount}
     user_text = DonatsLogs.render("DONAT_PAID_USER", **user_text_data)
