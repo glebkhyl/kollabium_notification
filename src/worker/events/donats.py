@@ -44,7 +44,7 @@ async def handle_donat_payed(ctx: dict, profile: str) -> None:
         exchange_data = await CRUDRepository.get_settings_exchange_rates()
         exchange_dict = ast.literal_eval(exchange_data.value)
         exchange = exchange_dict["rub"]
-        kol_amount = Decimal(donation_data.amount) * Decimal(exchange)
+        kol_amount = Decimal(donation_data.amount) / Decimal(exchange)
     except:
         kol_amount = 0
     data = {
